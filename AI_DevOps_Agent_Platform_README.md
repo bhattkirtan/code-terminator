@@ -1,24 +1,48 @@
 # 🧠 AI DevOps Agent Platform – Architecture Summary
 
-## 🔁 Execution Flow
+## 🚀 Platform Overview
+
+Transform legacy UI screenshots into modern Angular v20 applications through an intelligent multi-agent system. Upload a screenshot, describe your goals, and get production-ready code with CI/CD pipelines, documentation, and best practices built-in.
+
+## ✅ User Journey
+
+1. **Upload** → Legacy UI screenshot + project requirements
+2. **Enhance** → AI enriches vague prompts with technical context
+3. **Analyze** → Computer vision detects UI components and structure
+4. **Design** → Generate semantic Angular layout (SCAM pattern, Signals)
+5. **Style** → Apply SCSS themes and responsive design tokens
+6. **Code** → Create TypeScript logic with reactive forms and OnPush
+7. **Mock** → Generate service stubs and API endpoints
+8. **Validate** → Automated build, test, and lint verification
+9. **Review** → AI code review for UX/accessibility violations
+10. **Enhance** → Self-healing improvements until quality passes
+11. **Document** → Auto-generated README and usage guides
+12. **Deploy** → CI/CD pipelines (GitHub Actions, Docker)
+13. **Track** → Carbon footprint monitoring and embedding storage
+
+## 🔁 Technical Architecture
 
 ```mermaid
 flowchart TD
     subgraph Input
         A[User Prompt] --> M[PromptEnhancerAgent]
         M --> PW1[PromptWriter for VisionAgent]
-        M --> PW2[PromptWriter for LayoutAgent]
-        M --> PW3[PromptWriter for CodeAgent]
-        M --> PW4[PromptWriter for StyleAgent]
-        M --> PW5[PromptWriter for StubAgent]
         A1[Screenshots Upload] --> N[EmbeddingAgent]
     end
 
     subgraph Generation
         PW1 --> B[VisionAgent]
+        M --> PW2[PromptWriter for LayoutAgent]
+        B --> PW2
         PW2 --> C[LayoutAgent]
+        M --> PW3[PromptWriter for CodeAgent]
+        C --> PW3
         PW3 --> D[CodeAgent]
+        M --> PW4[PromptWriter for StyleAgent]
+        C --> PW4
         PW4 --> E[StyleAgent]
+        M --> PW5[PromptWriter for StubAgent]
+        D --> PW5
         PW5 --> F[StubAgent]
     end
 
@@ -54,71 +78,67 @@ flowchart TD
     I --> G
 ```
 
-### 🧠 Prompt Flow
+## 🧠 Agent Capabilities & Responsibilities
 
-PromptWriterAgent receives:
-- The **original user prompt** (e.g. "Modernize this screen")
-- Context from **PromptEnhancerAgent** (tech stack, layout goals, etc.)
-- Target **agent stage** (e.g. LayoutAgent)
+### 🎯 Core Generation Agents
+| Agent | Input | Output | Key Features |
+|-------|-------|--------|--------------|
+| **PromptEnhancerAgent** | Vague user prompts | Enhanced technical requirements | Context enrichment, tech stack inference, UX goal extraction |
+| **VisionAgent** | UI screenshots | Structured component tree | Computer vision, layout detection, UI element classification |
+| **LayoutAgent** | Component structure | Angular HTML templates | SCAM pattern, semantic markup, responsive design, accessibility |
+| **StyleAgent** | Layout + design files | SCSS stylesheets | Design tokens, theme application, CSS best practices |
+| **CodeAgent** | Layout + requirements | TypeScript logic | Reactive forms, OnPush strategy, Signals, dependency injection |
+| **StubAgent** | Component requirements | Mock services | HTTP interceptors, data models, API stubs, testing utilities |
 
-It outputs stage-specific prompts like:
+### 🔍 Quality Assurance Agents
+| Agent | Purpose | Validation Criteria | Auto-fixes |
+|-------|---------|-------------------|------------|
+| **ValidationAgent** | Build verification | `ng build`, `ng test`, `ng lint` success | Compilation errors, test failures, linting violations |
+| **CodeReviewAgent** | Code quality audit | Angular best practices, accessibility, performance | Anti-pattern detection, WCAG compliance, bundle optimization |
+| **EnhancementAgent** | Iterative improvement | Self-healing until convergence | Code regeneration, architectural refactoring, optimization |
 
-```yaml
-prompt_for_LayoutAgent: >
-  Using the goal of modernizing a data transfer UI into Angular 20, generate a semantic layout that uses standalone components, responsive tab structure, and follows SCAM pattern.
+### 📋 Documentation & DevOps Agents
+| Agent | Deliverable | Features | Integration |
+|-------|-------------|----------|-------------|
+| **DocumentationAgent** | Technical docs | README, API docs, usage examples, architecture diagrams | Component stories, deployment guides |
+| **PipelineAgent** | CI/CD configuration | GitHub Actions, Docker, deployment scripts | Multi-environment, testing pipelines, security scanning |
+| **CarbonAgent** | Sustainability metrics | CO₂ tracking per model run, optimization recommendations | Green coding practices, efficiency monitoring |
+| **EmbeddingAgent** | Knowledge management | Semantic search, component reuse, context persistence | Cross-project learning, similarity matching |
 
-prompt_for_CodeAgent: >
-  Generate TypeScript logic and bind forms, events, and mock data according to layout. Apply OnPush strategy.
-```
-
-### 🔁 Per-Agent Prompting Strategy
-
-PromptWriterAgent is invoked at each stage to produce context-aware, agent-specific prompts.
-
-Example logic:
+### 🧩 Intelligent Prompting System
+**PromptWriterAgent** generates context-aware, stage-specific prompts:
 
 ```python
-def generate_prompt(agent_type, context):
+# Dynamic prompt generation based on agent type and context
+def generate_prompt(agent_type, context, artifacts):
     if agent_type == "VisionAgent":
-        return f"From the uploaded screenshot, detect and label UI components like tabs, tables, buttons."
+        return f"Analyze uploaded screenshot: detect {context.ui_elements}, extract layout hierarchy"
     elif agent_type == "LayoutAgent":
-        return f"Using the detected UI structure, generate Angular 20 HTML layout using SCAM pattern and semantic tags."
+        return f"Generate Angular 20 HTML using {context.vision_output}, apply {context.design_system}"
     elif agent_type == "CodeAgent":
-        return f"Create a standalone Angular component with TS logic and reactive forms. Follow OnPush and Signals best practices."
-    elif agent_type == "StyleAgent":
-        return f"Apply the given SCSS theme to the HTML structure, using design tokens and color palette."
+        return f"Create standalone component with {context.layout_structure}, implement {context.business_logic}"
 ```
 
-This ensures prompts are adaptive and purpose-built for each agent.
+## 🎯 Platform Advantages
 
----
+- **🚀 Speed**: Legacy UI → Production code in minutes
+- **🧠 Intelligence**: Context-aware prompting across all stages
+- **🔄 Self-Healing**: Automatic error detection and correction
+- **📱 Modern Stack**: Angular v20, Signals, SCAM pattern, OnPush
+- **♿ Accessibility**: Built-in WCAG compliance and best practices
+- **🌱 Sustainable**: Carbon footprint tracking and optimization
+- **📦 Production-Ready**: Full CI/CD, documentation, and deployment configs
+- **🔗 Reusable**: Component library building through semantic embeddings
 
-## 🧠 Agent Role Summary
+## 🧩 Use Cases
 
-| Agent | Description |
-|-------|-------------|
-| **PromptEnhancerAgent** | Enriches vague prompts with context (design goals, UX intent, architecture hints) |
-| **PromptWriterAgent** | Generates prompts dynamically for each agent stage (e.g., VisionAgent, LayoutAgent, CodeAgent) based on agent type, upstream context, enhanced user intent, and user-uploaded artifacts. Ensures each LLM invocation is precisely tailored and context-aware. |
-| **VisionAgent** | Parses screenshots into structured UI elements |
-| **LayoutAgent** | Translates UI trees into Angular-compatible layout (HTML) |
-| **CodeAgent** | Generates Angular TS/HTML/SCSS following best practices |
-| **StyleAgent** | Applies SCSS/themes from uploaded files or inferred design |
-| **StubAgent** | Creates service stubs and mock HTTP endpoints |
-| **ValidationAgent** | Runs `ng build`, `ng test`, `ng lint` and parses errors |
-| **CodeReviewAgent** | Flags UI/UX violations, Angular antipatterns, accessibility issues |
-| **EnhancementAgent** | Recommends improvements and re-generates code if necessary. Automatically triggers validation after re-generation to ensure fix quality. |
-| **DocumentationAgent** | Writes README, docstrings, and usage guides for all components |
-| **PipelineAgent** | Generates GitHub Actions, Dockerfiles, and CI/CD configs |
-| **CarbonAgent** | Tracks estimated CO₂ per model/token run |
-| **EmbeddingAgent** | Ingests all uploaded screenshots and generated artifacts early in the flow. Enables semantic memory across agents for UI, code reuse, and layout consistency. |
-
----
-
-## 🎯 System Goals
-
-- ✅ Generate clean Angular v20 code from legacy screenshots
-- 🧠 Automatically enhance vague instructions into actionable prompts
-- 🧪 Validate builds + test output
+| Scenario | Platform Response | Business Value |
+|----------|------------------|----------------|
+| Legacy system modernization | Full Angular migration with preserved functionality | Reduced technical debt, improved maintainability |
+| Rapid prototyping | Screenshot → Working prototype in minutes | Faster time-to-market, stakeholder validation |
+| Design system implementation | Consistent components across projects | Brand consistency, development efficiency |
+| Accessibility compliance | WCAG-compliant code generation | Legal compliance, inclusive user experience |
+| Team productivity | Automated documentation and testing | Reduced manual work, higher code quality |
 - 📋 Ensure code review + UX best practices
 - 📦 Create docs + pipeline
 - 🔁 Embed all outputs for learning, reuse, linking
