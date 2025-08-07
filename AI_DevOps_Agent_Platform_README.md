@@ -1,37 +1,43 @@
-
 # 🧠 AI DevOps Agent Platform – Architecture Summary
 
 ## 🔁 Execution Flow
 
 ```mermaid
-graph TD
-    A[User Prompt] --> M[PromptEnhancerAgent]
-    M --> A1[Screenshots Upload]
-    A1 --> B[VisionAgent]
-    B --> C[LayoutAgent]
-    C --> D[CodeAgent]
-    D --> E[StyleAgent]
-    D --> F[StubAgent]
+flowchart TD
+    subgraph Input
+        A[User Prompt] --> M[PromptEnhancerAgent]
+        A1[Screenshots Upload] --> N[EmbeddingAgent]
+    end
 
-    %% Validation comes after core code
-    D --> G[ValidationAgent]
+    subgraph Generation
+        M --> B[VisionAgent]
+        B --> C[LayoutAgent]
+        C --> D[CodeAgent]
+        D --> E[StyleAgent]
+        D --> F[StubAgent]
+    end
 
-    %% Build passed
-    G -->|✅ Pass| H[CodeReviewAgent]
-    %% Build failed
-    G -->|❌ Fail| D
+    subgraph Validation
+        D --> G[ValidationAgent]
+        G -->|✅ Pass| H[CodeReviewAgent]
+        G -->|❌ Fail| D
+    end
 
-    %% Code review feedback
-    H --> I[EnhancementAgent]
-    I --> D
+    subgraph Improvement
+        H --> I[EnhancementAgent]
+        I --> D
+    end
 
-    %% Parallel flows from improved code
-    D --> J[DocumentationAgent]
-    D --> K[PipelineAgent]
-    D --> L[CarbonAgent]
+    subgraph Finalization
+        D --> J[DocumentationAgent]
+        D --> K[PipelineAgent]
+        D --> L[CarbonAgent]
+    end
 
-    %% Embedding layer collects everything
-    D --> N[EmbeddingAgent]
+    %% Embedding Agent informs core stages
+    N --> B
+    N --> C
+    N --> D
     J --> N
     H --> N
 ```
@@ -54,7 +60,7 @@ graph TD
 | **DocumentationAgent** | Writes README, docstrings, and usage guides for all components |
 | **PipelineAgent** | Generates GitHub Actions, Dockerfiles, and CI/CD configs |
 | **CarbonAgent** | Tracks estimated CO₂ per model/token run |
-| **EmbeddingAgent** | Stores semantic representations of all code, styles, and docs for reuse, similarity search, and linkage |
+| **EmbeddingAgent** | Ingests all uploaded screenshots and generated artifacts early in the flow. Enables semantic memory across agents for UI, code reuse, and layout consistency. |
 
 ---
 
