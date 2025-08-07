@@ -194,6 +194,25 @@ flowchart TD
     I --> G
 ```
 
+
+## 🔧 Agent Flow Summary (LLM-powered Backend)
+
+| Agent Name             | Purpose                                                         | Recommended Green Model        | Type               |
+|------------------------|------------------------------------------------------------------|-------------------------------|--------------------|
+| PromptEnhancerAgent    | Enhances vague prompts into structured, actionable requirements | phi-3-mini                    | Prompt enrichment  |
+| VisionAgent            | Detects layout from UI screenshots                              | phi-3-vision                  | Visual model       |
+| LayoutAgent            | Converts layout JSON into HTML/structure                        | gemma-2b                      | Code generator     |
+| StyleAgent             | Applies design tokens or SCSS themes                            | phi-3-small                   | Style generator    |
+| CodeAgent              | Generates component logic (TS, HTML, Signals)                   | orca-2-7b                     | Code generator     |
+| StubAgent              | Builds mock services and data layer                             | phi-3-mini                    | Backend stub       |
+| ValidationAgent        | Validates build, lint, test                                     | Local validator (shell)       | Quality assurance  |
+| CodeReviewAgent        | Reviews code for quality, UX, accessibility                     | phi-3-mini                    | QA/UX review       |
+| EnhancementAgent       | Suggests and applies improvements                               | gemma-2b                      | Code refiner       |
+| DocumentationAgent     | Generates README, usage notes, API docs                         | phi-3-mini                    | Documentation      |
+| PipelineAgent          | Builds CI/CD pipelines (GitHub Actions, Docker)                 | Local YAML script generator   | DevOps config      |
+| CarbonAgent            | Tracks emissions from model usage                               | Local Python calculator       | Sustainability     |
+| EmbeddingAgent         | Creates semantic embeddings of code and prompts                 | pgvector + local embeddings   | Knowledge indexing |
+
 ## 🧠 Agent Capabilities & Responsibilities
 
 ### 🎯 Core Generation Agents
@@ -230,6 +249,7 @@ flowchart TD
 | **TestDataAgent** | Mock data creation | Faker DSL, schema-based generation, realistic test scenarios | Dynamic test data for APIs and UI previews |
 | **HeatmapAgent** | Complexity analysis | Component complexity scoring, test coverage gaps, refactor suggestions | Visual overlay on UI preview |
 | **DeliveryAgent** | Project handoff | Final checklist validation, export coordination, quality gates | PDF reports, multi-format exports |
+| **AccuracyValidatorAgent** | Visual accuracy validation | Live URL screenshot capture, image comparison, similarity analysis | Visual accuracy score, difference heatmap, recommendations |
 
 ### 🧩 Intelligent Prompting System
 **PromptWriterAgent** generates context-aware, stage-specific prompts:

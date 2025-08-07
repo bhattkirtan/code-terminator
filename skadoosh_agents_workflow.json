@@ -1,0 +1,528 @@
+{
+  "name": "Skadoosh Agent Orchestration",
+  "nodes": [
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"PromptEnhancerAgent\", step: \"0\", input: \"user_prompt\" } }];"
+      },
+      "name": "PromptEnhancerAgent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"PromptWriterAgent_Vision\", step: \"1\", input: \"enhanced_prompt\" } }];"
+      },
+      "name": "PromptWriterAgent_Vision",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"VisionAgent\", step: \"2\", input: \"screenshot_upload\" } }];"
+      },
+      "name": "VisionAgent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        600,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"PromptWriterAgent_Layout\", step: \"3\", input: \"vision_output\" } }];"
+      },
+      "name": "PromptWriterAgent_Layout",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        800,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"LayoutAgent\", step: \"4\", input: \"ui_structure\" } }];"
+      },
+      "name": "LayoutAgent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"PromptWriterAgent_Style\", step: \"5\", input: \"layout_output\" } }];"
+      },
+      "name": "PromptWriterAgent_Style",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        800,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"StyleAgent\", step: \"6\", input: \"layout_html\" } }];"
+      },
+      "name": "StyleAgent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"PromptWriterAgent_Code\", step: \"7\", input: \"layout_style_output\" } }];"
+      },
+      "name": "PromptWriterAgent_Code",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"CodeAgent\", step: \"8\", input: \"styled_layout\" } }];"
+      },
+      "name": "CodeAgent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"PromptWriterAgent_Stub\", step: \"9\", input: \"code_output\" } }];"
+      },
+      "name": "PromptWriterAgent_Stub",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"StubAgent\", step: \"10\", input: \"component_requirements\" } }];"
+      },
+      "name": "StubAgent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"ValidationAgent\", step: \"11\", input: \"code_stubs\" } }];"
+      },
+      "name": "ValidationAgent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.validation_results && $json.validation_results.overall_success}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "ValidationCheck",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        450
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"CodeReviewAgent\", step: \"12\", input: \"validation_results\" } }];"
+      },
+      "name": "CodeReviewAgent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        450
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"EnhancementAgent\", step: \"13\", input: \"review_feedback\" } }];"
+      },
+      "name": "EnhancementAgent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        450
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"DocumentationAgent\", step: \"14\", input: \"final_code\" } }];"
+      },
+      "name": "DocumentationAgent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"PipelineAgent\", step: \"15\", input: \"final_code\" } }];"
+      },
+      "name": "PipelineAgent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"CarbonAgent\", step: \"16\", input: \"execution_metrics\" } }];"
+      },
+      "name": "CarbonAgent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2200,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"EmbeddingAgent\", step: \"17\", input: \"all_artifacts\" } }];"
+      },
+      "name": "EmbeddingAgent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        200,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"TimelineAgent\", step: \"18\", input: \"execution_trace\" } }];"
+      },
+      "name": "TimelineAgent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"VersionAgent\", step: \"19\", input: \"project_snapshots\" } }];"
+      },
+      "name": "VersionAgent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"WalkthroughAgent\", step: \"20\", input: \"final_project\" } }];"
+      },
+      "name": "WalkthroughAgent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2400,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"TestDataAgent\", step: \"21\", input: \"code_output\" } }];"
+      },
+      "name": "TestDataAgent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2200,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"HeatmapAgent\", step: \"22\", input: \"validation_code\" } }];"
+      },
+      "name": "HeatmapAgent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2400,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { agent: \"DeliveryAgent\", step: \"23\", input: \"all_deliverables\" } }];"
+      },
+      "name": "DeliveryAgent",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2600,
+        200
+      ]
+    }
+  ],
+  "connections": {
+    "PromptEnhancerAgent": [
+      {
+        "node": "PromptWriterAgent_Vision",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "PromptWriterAgent_Vision": [
+      {
+        "node": "VisionAgent",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "VisionAgent": [
+      {
+        "node": "PromptWriterAgent_Layout",
+        "type": "main",
+        "index": 0
+      },
+      {
+        "node": "EmbeddingAgent",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "PromptWriterAgent_Layout": [
+      {
+        "node": "LayoutAgent",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "LayoutAgent": [
+      {
+        "node": "PromptWriterAgent_Style",
+        "type": "main",
+        "index": 0
+      },
+      {
+        "node": "PromptWriterAgent_Code",
+        "type": "main",
+        "index": 0
+      },
+      {
+        "node": "EmbeddingAgent",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "PromptWriterAgent_Style": [
+      {
+        "node": "StyleAgent",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "StyleAgent": [
+      {
+        "node": "PromptWriterAgent_Code",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "PromptWriterAgent_Code": [
+      {
+        "node": "CodeAgent",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "CodeAgent": [
+      {
+        "node": "PromptWriterAgent_Stub",
+        "type": "main",
+        "index": 0
+      },
+      {
+        "node": "ValidationAgent",
+        "type": "main",
+        "index": 0
+      },
+      {
+        "node": "EmbeddingAgent",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "PromptWriterAgent_Stub": [
+      {
+        "node": "StubAgent",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "ValidationAgent": [
+      {
+        "node": "ValidationCheck",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "ValidationCheck": [
+      {
+        "node": "CodeReviewAgent",
+        "type": "main",
+        "index": 0
+      },
+      {
+        "node": "EnhancementAgent",
+        "type": "main",
+        "index": 1
+      }
+    ],
+    "CodeReviewAgent": [
+      {
+        "node": "EmbeddingAgent",
+        "type": "main",
+        "index": 0
+      },
+      {
+        "node": "DocumentationAgent",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "EnhancementAgent": [
+      {
+        "node": "ValidationAgent",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "StubAgent": [
+      {
+        "node": "DocumentationAgent",
+        "type": "main",
+        "index": 0
+      },
+      {
+        "node": "PipelineAgent",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "DocumentationAgent": [
+      {
+        "node": "EmbeddingAgent",
+        "type": "main",
+        "index": 0
+      },
+      {
+        "node": "TimelineAgent",
+        "type": "main",
+        "index": 0
+      },
+      {
+        "node": "TestDataAgent",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "PipelineAgent": [
+      {
+        "node": "CarbonAgent",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "CarbonAgent": [
+      {
+        "node": "VersionAgent",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "TimelineAgent": [
+      {
+        "node": "WalkthroughAgent",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "VersionAgent": [
+      {
+        "node": "DeliveryAgent",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "TestDataAgent": [
+      {
+        "node": "HeatmapAgent",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "HeatmapAgent": [
+      {
+        "node": "DeliveryAgent",
+        "type": "main",
+        "index": 0
+      }
+    ],
+    "WalkthroughAgent": [
+      {
+        "node": "DeliveryAgent",
+        "type": "main",
+        "index": 0
+      }
+    ]
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "3"
+}
