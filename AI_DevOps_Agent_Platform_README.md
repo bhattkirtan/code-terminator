@@ -221,6 +221,16 @@ flowchart TD
 | **CarbonAgent** | Sustainability metrics | CO₂ tracking per model run, optimization recommendations | Green coding practices, efficiency monitoring |
 | **EmbeddingAgent** | Knowledge management | Semantic search, component reuse, context persistence | Cross-project learning, similarity matching |
 
+### 🔍 Advanced Intelligence Agents
+| Agent | Purpose | Capabilities | Output |
+|-------|---------|-------------|--------|
+| **TimelineAgent** | Execution tracing | Time-stamped agent execution with input/output diffs, prompt history | Interactive timeline UI with retry capability |
+| **VersionAgent** | Semantic versioning | Project snapshots, rollback capability, prompt lineage tracking | Version history with comparison tools |
+| **WalkthroughAgent** | Demo generation | AI-narrated project summaries, accessibility/performance scores | MP4 export, stakeholder presentations |
+| **TestDataAgent** | Mock data creation | Faker DSL, schema-based generation, realistic test scenarios | Dynamic test data for APIs and UI previews |
+| **HeatmapAgent** | Complexity analysis | Component complexity scoring, test coverage gaps, refactor suggestions | Visual overlay on UI preview |
+| **DeliveryAgent** | Project handoff | Final checklist validation, export coordination, quality gates | PDF reports, multi-format exports |
+
 ### 🧩 Intelligent Prompting System
 **PromptWriterAgent** generates context-aware, stage-specific prompts:
 
@@ -235,16 +245,124 @@ def generate_prompt(agent_type, context, artifacts):
         return f"Create standalone component with {context.layout_structure}, implement {context.business_logic}"
 ```
 
-## 🎯 Platform Advantages
+## 🚀 Advanced Platform Features
 
-- **🚀 Speed**: Legacy UI → Production code in minutes
-- **🧠 Intelligence**: Context-aware prompting across all stages
-- **🔄 Self-Healing**: Automatic error detection and correction
-- **📱 Modern Stack**: Angular v20, Signals, SCAM pattern, OnPush
-- **♿ Accessibility**: Built-in WCAG compliance and best practices
-- **🌱 Sustainable**: Carbon footprint tracking and optimization
-- **📦 Production-Ready**: Full CI/CD, documentation, and deployment configs
-- **🔗 Reusable**: Component library building through semantic embeddings
+### 🔁 Agent Timeline & Execution Trace
+
+**GitHub Actions meets LangSmith** - Complete execution transparency:
+
+| Feature | Description |
+|---------|-------------|
+| 🧩 **Agent Timeline** | Time-stamped trace of each agent (VisionAgent, CodeAgent, etc.) |
+| 🔁 **Rerun Agent** | Retry any step from the timeline |
+| 🧠 **Prompt Viewer** | Inspect prompt history per stage |
+| 📄 **Diff Inspector** | See what changed between agent outputs |
+| ⏱ **Performance Metrics** | Show model name (Phi-3, Orca, etc.) and latency |
+
+**Value**: Total transparency + debuggability  
+**Tools**: Timeline UI (React), LangGraph/Tracer-style logs
+
+### 📽️ AI Walkthrough Export
+
+**Automated demo creation** for stakeholder presentations:
+- **AI-narrated project summary video** covering layout, logic, validation, and CI/CD
+- **Auto-captures**: What was built, why it was structured that way
+- **Includes**: Accessibility and sustainability metrics
+- **Export formats**: MP4 or shareable link for stakeholders
+
+**Value**: Turns output into a sellable demo artifact
+
+### 🧠 Version Memory & Rollback
+
+**Semantic project history** with intelligent management:
+
+| Capability | Description |
+|------------|-------------|
+| 🧬 **Version History** | Save and label any generated version |
+| 🔍 **Prompt Lineage** | Track changes across iterations |
+| 🕹️ **Rollback** | Revert to any previous working version |
+| 🔗 **Linkable Snapshots** | Shareable version links with embedded preview |
+
+**Smart queries**: "Show when login component was changed"  
+**Comparison tools**: Side-by-side "Prompt A" vs "Prompt B" results
+
+**Value**: Reusability + trackability + explainability
+
+### 📦 Multi-Export Options
+
+| Format | Purpose | Features |
+|--------|---------|----------|
+| **GitHub push** | CI-ready deployment | Auto-commits, branch creation, PR templates |
+| **ZIP bundle** | Quick download | Complete project structure |
+| **Stackblitz project** | Instant cloud preview | Live code editing, sharing |
+| **Figma file** | Design system export | Component library, design tokens |
+| **JSON schema** | Re-import configuration | Project templates, reusable configs |
+
+### 🔄 Interactive "Prompt Studio" Playground
+
+**Code Interpreter meets Agent DevTool**:
+- **Agent selection**: Choose specific agent to modify
+- **Live prompt editing**: Inject modified prompts in real-time
+- **Stage preview**: See results of individual agent runs
+- **Professional debugging**: Interactive prompt engineering interface
+
+### 🧪 Test Data Generator
+
+**Smart test data creation** with custom syntax:
+```javascript
+// Auto-generates sample data based on model schema
+// Faker DSL syntax:
+faker.transaction({ status: "success", amount: range(1000, 5000) })
+```
+
+**Applications**:
+- Inject directly into mock APIs and test harnesses
+- Unit tests with realistic data
+- UI previews with fake data
+- Load testing mock APIs
+
+### 📊 Heatmap Overlay & UI Complexity Analysis
+
+**Intelligent code analysis** with visual feedback:
+
+| Metric | Overlay |
+|--------|---------|
+| 👁️ **Accessibility** | WCAG focus states, contrast issues |
+| 🧠 **Complexity** | Large component detection |
+| 🧪 **Test Gaps** | Highlight untested branches or elements |
+
+**Display**: Heatmap overlay on UI preview or Dashboard tab  
+**Features**: Flag areas for refactor, suggest improvements
+
+### ✔️ Final Delivery Checklist
+
+**Professional project handoff** with quality gates:
+
+| Deliverable | Status |
+|-------------|--------|
+| Layout & Theme | ✅ |
+| Component Code | ✅ |
+| API Integration (Stub/Live) | ✅ |
+| Unit & E2E Tests | ✅ |
+| CI/CD Config | ✅ |
+| README + Docs | ✅ |
+| Carbon Report | ✅ |
+| Accessibility Check | ✅ |
+| Walkthrough Video | ✅ |
+| Export ZIP or GitHub Push | ✅ |
+
+**Export options**: PDF report, Notion doc, stakeholder summary
+
+### 🎯 Platform Differentiation
+
+These advanced features elevate the platform from **smart tool** → **enterprise-grade platform**:
+
+- **🔍 Transparency**: Full agent traceability and debugging
+- **📈 Scalability**: Version control and project templates  
+- **🎨 Professionalism**: Auto-generated demos and reports
+- **🧠 Intelligence**: Smart analysis and recommendations
+- **🔧 Flexibility**: Multiple export formats and customization
+- **📋 Enterprise-Ready**: Professional delivery and compliance tracking
 
 ## 🧩 Use Cases
 
@@ -255,3 +373,5 @@ def generate_prompt(agent_type, context, artifacts):
 | Design system implementation | Consistent components across projects | Brand consistency, development efficiency |
 | Accessibility compliance | WCAG-compliant code generation | Legal compliance, inclusive user experience |
 | Team productivity | Automated documentation and testing | Reduced manual work, higher code quality |
+
+
