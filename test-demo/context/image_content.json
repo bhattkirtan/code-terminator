@@ -1,0 +1,270 @@
+{
+  "elements": [
+    {
+      "type": "header",
+      "label": null,
+      "position": [
+        0,
+        0,
+        1200,
+        60
+      ],
+      "properties": {
+        "background-color": "#ffffff",
+        "height": "60px"
+      },
+      "confidence": 1
+    },
+    {
+      "type": "text",
+      "label": "Snap it!",
+      "position": [
+        30,
+        20,
+        100,
+        20
+      ],
+      "properties": {
+        "color": "#673AB7",
+        "font-size": "20px",
+        "font-weight": "bold"
+      },
+      "confidence": 1
+    },
+    {
+      "type": "navigation",
+      "label": null,
+      "position": [
+        350,
+        20,
+        400,
+        20
+      ],
+      "properties": {
+        "display": "flex",
+        "justify-content": "space-between"
+      },
+      "confidence": 1
+    },
+    {
+      "type": "list",
+      "label": "Features",
+      "position": [
+        350,
+        20,
+        60,
+        20
+      ],
+      "properties": {
+        "color": "#333333"
+      },
+      "confidence": 1
+    },
+    {
+      "type": "list",
+      "label": "Workflow",
+      "position": [
+        450,
+        20,
+        70,
+        20
+      ],
+      "properties": {
+        "color": "#333333"
+      },
+      "confidence": 1
+    },
+    {
+      "type": "list",
+      "label": "Pricing",
+      "position": [
+        550,
+        20,
+        60,
+        20
+      ],
+      "properties": {
+        "color": "#333333"
+      },
+      "confidence": 1
+    },
+    {
+      "type": "list",
+      "label": "About",
+      "position": [
+        650,
+        20,
+        50,
+        20
+      ],
+      "properties": {
+        "color": "#333333"
+      },
+      "confidence": 1
+    },
+    {
+      "type": "list",
+      "label": "Support",
+      "position": [
+        750,
+        20,
+        70,
+        20
+      ],
+      "properties": {
+        "color": "#333333"
+      },
+      "confidence": 1
+    },
+    {
+      "type": "button",
+      "label": "JD",
+      "position": [
+        1050,
+        15,
+        40,
+        30
+      ],
+      "properties": {
+        "background-color": "#e0e0e0",
+        "border-radius": "50%",
+        "color": "#333333"
+      },
+      "confidence": 1
+    },
+    {
+      "type": "button",
+      "label": "Get Started",
+      "position": [
+        1100,
+        15,
+        100,
+        30
+      ],
+      "properties": {
+        "background-color": "#000000",
+        "color": "#ffffff",
+        "border-radius": "5px"
+      },
+      "confidence": 1
+    },
+    {
+      "type": "image",
+      "label": "Full-Stack AI Platform logo",
+      "position": [
+        500,
+        100,
+        200,
+        200
+      ],
+      "properties": {
+        "src": "hand_logo.svg"
+      },
+      "confidence": 0.9
+    },
+    {
+      "type": "text",
+      "label": "Full-Stack AI Platform",
+      "position": [
+        450,
+        150,
+        300,
+        20
+      ],
+      "properties": {
+        "font-size": "16px",
+        "font-weight": "bold",
+        "color": "#673AB7"
+      },
+      "confidence": 1
+    },
+    {
+      "type": "text",
+      "label": "Snap it!",
+      "position": [
+        400,
+        350,
+        400,
+        50
+      ],
+      "properties": {
+        "font-size": "48px",
+        "font-weight": "bold",
+        "color": "#673AB7"
+      },
+      "confidence": 1
+    },
+    {
+      "type": "text",
+      "label": "One Stop AI Platform",
+      "position": [
+        400,
+        400,
+        400,
+        30
+      ],
+      "properties": {
+        "font-size": "24px",
+        "color": "#666666"
+      },
+      "confidence": 1
+    },
+    {
+      "type": "text",
+      "label": "The ultimate AI-powered development platform. From UI generation to full-stack applications, database design, API development, and everything in between. Build anything, faster than ever.",
+      "position": [
+        200,
+        450,
+        800,
+        60
+      ],
+      "properties": {
+        "text-align": "center",
+        "font-size": "18px",
+        "color": "#444444"
+      },
+      "confidence": 1
+    },
+    {
+      "type": "button",
+      "label": "Get Started",
+      "position": [
+        400,
+        550,
+        150,
+        40
+      ],
+      "properties": {
+        "background-color": "#1A237E",
+        "color": "#ffffff",
+        "border-radius": "5px",
+        "font-size": "16px"
+      },
+      "confidence": 1
+    },
+    {
+      "type": "button",
+      "label": "View Export Options",
+      "position": [
+        600,
+        550,
+        200,
+        40
+      ],
+      "properties": {
+        "background-color": "#ffffff",
+        "color": "#1A237E",
+        "border": "1px solid #1A237E",
+        "border-radius": "5px",
+        "font-size": "16px"
+      },
+      "confidence": 1
+    }
+  ],
+  "layout_type": "flex",
+  "responsive": false,
+  "accessibility": {
+    "has_alt_text": true,
+    "color_contrast": "good"
+  }
+}
