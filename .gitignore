@@ -448,3 +448,6 @@ test_temp/
 
 # Miscellaneous
 .DS_Store
+
+# UI folder
+snapit-ui/
