@@ -532,7 +532,8 @@ service cloud.firestore {
 functions:
   upload-service:
     runtime: "python39"
-    memory: "512MB" 
+    generation: "gen2"
+    memory: "512Mi" 
     timeout: "60s"
     trigger: "https"
     env_vars:
@@ -540,7 +541,8 @@ functions:
     
   embedding-service:
     runtime: "python39"
-    memory: "2GB"                    # Increased for AI processing
+    generation: "gen2"
+    memory: "2Gi"                    # Increased for AI processing
     timeout: "540s"                  # 9 minutes for complex analysis
     trigger: "https"
     env_vars:
@@ -549,19 +551,22 @@ functions:
     
   data-service:
     runtime: "python39"
-    memory: "1GB"                    # Increased for large collections
+    generation: "gen2"
+    memory: "1Gi"                    # Increased for large collections
     timeout: "60s"
     trigger: "https"
     
   search-service:
     runtime: "python39"
-    memory: "1GB"                    # For vector operations
+    generation: "gen2"
+    memory: "1Gi"                    # For vector operations
     timeout: "60s"
     trigger: "https"
     
   link-service:
     runtime: "python39"
-    memory: "1GB"                    # For content parsing & embeddings
+    generation: "gen2"
+    memory: "1Gi"                    # For content parsing & embeddings
     timeout: "120s"                  # Extended for link fetching
     trigger: "https"
     env_vars:
@@ -570,7 +575,8 @@ functions:
     
   project-init-service:
     runtime: "python39"
-    memory: "256MB"
+    generation: "gen2"
+    memory: "256Mi"
     timeout: "30s"
     trigger: "https"
 ```

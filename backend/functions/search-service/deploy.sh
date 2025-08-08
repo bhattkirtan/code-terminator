@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Deploy Link Service to Google Cloud Functions
-# Run from the link-service directory
+# Deploy Search Service to Google Cloud Functions
+# Run from the search-service directory
 
 set -e
 
-echo "🔗 Deploying Link Processing Service..."
+echo "🔍 Deploying Search Service..."
 
 # Check if gcloud is installed and authenticated
 if ! command -v gcloud &> /dev/null; then
@@ -16,7 +16,7 @@ fi
 # Set variables
 PROJECT_ID=${1:-"your-project-id"}
 REGION=${2:-"us-central1"}
-SERVICE_NAME="link-service"
+SERVICE_NAME="search-service"
 
 echo "📋 Configuration:"
 echo "   Project ID: $PROJECT_ID"
@@ -39,16 +39,15 @@ gcloud functions deploy $SERVICE_NAME \
     --runtime python39 \
     --trigger-http \
     --allow-unauthenticated \
-    --entry-point link_processor \
+    --entry-point semantic_search \
     --source . \
-    --timeout 120s \
+    --timeout 60s \
     --memory 1Gi \
     --region $REGION \
-    --project $PROJECT_ID \
-    --set-env-vars "OPENAI_API_KEY=$OPENAI_API_KEY,REQUESTS_TIMEOUT=30"
+    --project $PROJECT_ID
 
 if [ $? -eq 0 ]; then
-    echo "✅ Link Service deployed successfully!"
+    echo "✅ Search Service deployed successfully!"
     
     # Get the function URL
     FUNCTION_URL=$(gcloud functions describe $SERVICE_NAME --region=$REGION --project=$PROJECT_ID --format="value(httpsTrigger.url)")
@@ -56,9 +55,9 @@ if [ $? -eq 0 ]; then
     echo "🌐 Function URL: $FUNCTION_URL"
     echo ""
     echo "📝 Test the service:"
-    echo "curl -X POST \"$FUNCTION_URL/api/links/add\" \\"
+    echo "curl -X POST \"$FUNCTION_URL/search\" \\"
     echo "  -H \"Content-Type: application/json\" \\"
-    echo "  -d '{\"projectId\": \"test-project\", \"url\": \"https://docs.python.org/3/tutorial/\", \"contentType\": \"documentation\"}'"
+    echo "  -d '{\"projectId\": \"test-project\", \"embedding\": [0.1, 0.2, 0.3], \"threshold\": 0.7}'"
     echo ""
     echo "🔍 Monitor logs:"
     echo "gcloud functions logs read $SERVICE_NAME --region=$REGION --project=$PROJECT_ID"

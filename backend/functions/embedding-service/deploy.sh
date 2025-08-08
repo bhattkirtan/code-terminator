@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Deploy Link Service to Google Cloud Functions
-# Run from the link-service directory
+# Deploy Embedding Service to Google Cloud Functions
+# Run from the embedding-service directory
 
 set -e
 
-echo "🔗 Deploying Link Processing Service..."
+echo "🧠 Deploying AI Embedding Service..."
 
 # Check if gcloud is installed and authenticated
 if ! command -v gcloud &> /dev/null; then
@@ -16,7 +16,7 @@ fi
 # Set variables
 PROJECT_ID=${1:-"your-project-id"}
 REGION=${2:-"us-central1"}
-SERVICE_NAME="link-service"
+SERVICE_NAME="embedding-service"
 
 echo "📋 Configuration:"
 echo "   Project ID: $PROJECT_ID"
@@ -39,16 +39,16 @@ gcloud functions deploy $SERVICE_NAME \
     --runtime python39 \
     --trigger-http \
     --allow-unauthenticated \
-    --entry-point link_processor \
+    --entry-point embedding_service \
     --source . \
-    --timeout 120s \
-    --memory 1Gi \
+    --timeout 540s \
+    --memory 2Gi \
     --region $REGION \
     --project $PROJECT_ID \
-    --set-env-vars "OPENAI_API_KEY=$OPENAI_API_KEY,REQUESTS_TIMEOUT=30"
+    --set-env-vars "OPENAI_API_KEY=$OPENAI_API_KEY"
 
 if [ $? -eq 0 ]; then
-    echo "✅ Link Service deployed successfully!"
+    echo "✅ Embedding Service deployed successfully!"
     
     # Get the function URL
     FUNCTION_URL=$(gcloud functions describe $SERVICE_NAME --region=$REGION --project=$PROJECT_ID --format="value(httpsTrigger.url)")
@@ -56,9 +56,9 @@ if [ $? -eq 0 ]; then
     echo "🌐 Function URL: $FUNCTION_URL"
     echo ""
     echo "📝 Test the service:"
-    echo "curl -X POST \"$FUNCTION_URL/api/links/add\" \\"
+    echo "curl -X POST \"$FUNCTION_URL/api/analyze_image\" \\"
     echo "  -H \"Content-Type: application/json\" \\"
-    echo "  -d '{\"projectId\": \"test-project\", \"url\": \"https://docs.python.org/3/tutorial/\", \"contentType\": \"documentation\"}'"
+    echo "  -d '{\"projectId\": \"test-project\", \"imageId\": \"img123\"}'"
     echo ""
     echo "🔍 Monitor logs:"
     echo "gcloud functions logs read $SERVICE_NAME --region=$REGION --project=$PROJECT_ID"
