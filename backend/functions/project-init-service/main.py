@@ -90,6 +90,8 @@ def initialize_project(request):
         folder_structure = [
             f"{project_id}/dist/",
             f"{project_id}/context/ui-images/",
+            f"{project_id}/context/docs/",
+            f"{project_id}/context/links/",
             f"{project_id}/context/assets/css/",
             f"{project_id}/context/assets/images/",
             f"{project_id}/context/assets/docs/"

@@ -16,20 +16,36 @@
 │       │       │   ├── comprehensive_report.json
 │       │       │   └── metadata.json
 │       │       └── image.png   # Original uploaded image
-│       └── assets/             # Project assets by type
+│       ├── docs/               # Document RAG embeddings & analysis
+│       │   └── {docId}/        # Individual document analysis folder
+│       │       ├── analysis/   # Document RAG analysis
+│       │       │   ├── embeddings.json     # Text embeddings
+│       │       │   ├── chunks.json         # Document chunks
+│       │       │   ├── summary.json        # AI-generated summary
+│       │       │   ├── keywords.json       # Extracted keywords
+│       │       │   └── metadata.json       # Document metadata
+│       │       ├── document.{ext}  # Original document (pdf, md, txt, etc.)
+│       │       └── processed/   # Processed versions
+│       │           ├── text.txt        # Extracted text
+│       │           ├── markdown.md     # Converted markdown
+│       │           └── images/         # Extracted images
+│       ├── links/              # External link RAG embeddings & analysis
+│       │   └── {linkId}/       # Individual link analysis folder
+│       │       ├── analysis/   # Link RAG analysis
+│       │       │   ├── embeddings.json     # Text embeddings from fetched content
+│       │       │   ├── chunks.json         # Content chunks
+│       │       │   ├── summary.json        # AI-generated summary
+│       │       │   ├── keywords.json       # Extracted keywords
+│       │       │   └── metadata.json       # Link metadata & caching info
+│       │       ├── cache/      # Cached content with TTL
+│       │       │   ├── content.html    # Cached HTML content
+│       │       │   ├── content.md      # Processed markdown
+│       │       │   └── last_fetch.json # Last successful fetch data
+│       │       └── link.json   # Original link reference & config
+│       └── assets/             # Other project assets
 │           ├── css/            # Stylesheets & themes
-│           │   ├── {assetId}.css
-│           │   └── compiled/   # Processed CSS files
 │           ├── images/         # Static images & icons
-│           │   ├── {assetId}.{ext}
-│           │   └── optimized/  # Compressed versions
-│           ├── docs/           # Documentation & specs
-│           │   ├── {assetId}.pdf
-│           │   ├── {assetId}.md
-│           │   └── exports/    # Generated documentation
 │           └── raw/            # Original unprocessed files
-│               ├── uploads/    # Direct user uploads
-│               └── backups/    # File version history
 ```
 
 ## 🛠️ AI-Powered Microservices Architecture
@@ -42,7 +58,7 @@
 interface UploadService {
   endpoint: "/api/upload"
   method: "POST"
-  description: "Handles file uploads with specialized UI image and general asset management"
+  description: "Handles file uploads with specialized UI image, document RAG, and general asset management"
   
   features: [
     "Multi-file upload support",
@@ -50,6 +66,7 @@ interface UploadService {
     "File validation & security",
     "Automatic image optimization & thumbnails",
     "UI image individual folder creation",
+    "Document RAG processing with embeddings",
     "Asset categorization by type",
     "Raw file preservation with version history",
     "Bucket initialization per project"
@@ -57,15 +74,18 @@ interface UploadService {
   
   storageStrategy: {
     "ui-images": "Each image gets its own folder: context/ui-images/{imageId}/",
+    "documents": "Each document gets its own folder: context/docs/{docId}/ with RAG analysis",
     "other-assets": "Organized by type: context/assets/{assetType}/{assetId}",
-    "analysis": "Analysis results stored alongside original UI image",
+    "rag-processing": "Documents processed for text extraction, chunking, and embeddings",
     "preservation": "Original files always preserved"
   }
   
   payload: {
     files: File[]
     projectId: string
-    fileType: "ui-image" | "css" | "image" | "doc" | "raw"
+    fileType: "ui-image" | "document" | "css" | "image" | "raw"
+    ragEnabled?: boolean  // Enable RAG processing for documents
+    chunkSize?: number    // Document chunking size (default: 1000)
     metadata?: object
     generateThumbnails?: boolean
     optimizeImages?: boolean
@@ -74,12 +94,147 @@ interface UploadService {
   response: {
     uploadedFiles: UploadedFile[]
     storageUrls: string[]
-    imageIds?: string[]  // For UI images
-    assetIds?: string[]  // For other assets
+    imageIds?: string[]    // For UI images
+    docIds?: string[]      // For documents
+    assetIds?: string[]    // For other assets
     folderPaths: string[]  // Full folder paths in GCS
+    ragResults?: RAGProcessingResult[]  // Document processing results
     thumbnailUrls?: string[]
     optimizedUrls?: string[]
     status: "success" | "error"
+  }
+}
+```
+
+#### 🔗 Link Processing Service
+```typescript
+// Multiple endpoints for external link RAG processing
+interface LinkService {
+  endpoints: {
+    add_link: "/api/links/add"                      // Add external link reference
+    fetch_link: "/api/fetch/{linkId}"               // Runtime content fetch with caching
+    refresh_link: "/api/refresh/{linkId}"           // Force refresh cached content
+    get_status: "/api/status/{linkId}"              // Check cache status and freshness
+    search_links: "/api/links/search"               // Search across cached link content
+  }
+  
+  description: "External link processing with intelligent caching, RAG embeddings, and content extraction"
+  
+  features: [
+    "🔗 External Link Content Fetching",
+    "⏰ Intelligent TTL-based Caching",
+    "📄 HTML to Text Content Extraction",
+    "🧠 Vector Embeddings Generation",
+    "🔍 Semantic Link Search",
+    "📊 Content Type Classification",
+    "⚡ Smart Cache Management",
+    "🔄 Auto-refresh Scheduling",
+    "📈 Link Analytics & Metrics"
+  ]
+  
+  cachingStrategy: {
+    contentTypes: {
+      "api-docs": "2 hours TTL",
+      "news": "1 hour TTL", 
+      "blog": "1 hour TTL",
+      "release-notes": "6 hours TTL",
+      "tutorials": "12 hours TTL",
+      "documentation": "6 hours TTL",
+      "frameworks": "24 hours TTL",
+      "specifications": "72 hours TTL",
+      "standards": "7 days TTL",
+      "static-content": "14 days TTL",
+      "default": "24 hours TTL"
+    },
+    fallbackPolicy: "Use stale cache if fresh fetch fails",
+    storageLocation: "{projectId}/context/links/{linkId}/cache/"
+  }
+  
+  ragCapabilities: {
+    contentExtraction: [
+      "HTML parsing and text extraction",
+      "Content cleanup and formatting",
+      "Title and metadata extraction",
+      "Content type auto-detection"
+    ],
+    embeddings: [
+      "Vector embeddings per link content",
+      "Semantic similarity search",
+      "Cross-link content analysis",
+      "Tag-based categorization"
+    ],
+    analytics: [
+      "Fetch frequency tracking",
+      "Content freshness monitoring",
+      "Cache hit/miss statistics",
+      "Content change detection"
+    ]
+  }
+  
+  storage: {
+    structure: "{projectId}/context/links/{linkId}/",
+    files: [
+      "link.json (metadata and configuration)",
+      "cache/content.json (cached content with TTL)",
+      "cache/content.html (raw HTML cache)",
+      "analysis/embeddings.json (vector embeddings)",
+      "analysis/metadata.json (extracted metadata)"
+    ],
+    workflow: "Add Link → Content Fetch → Cache Storage → RAG Processing → Search Integration"
+  }
+  
+  payload: {
+    add: {
+      projectId: string
+      url: string
+      contentType?: string  // Auto-detected or manual classification
+      priority?: "low" | "medium" | "high"
+      title?: string
+      tags?: string[]
+    },
+    fetch: {
+      projectId: string
+      forceRefresh?: boolean
+      generateEmbeddings?: boolean
+    },
+    search: {
+      projectId: string
+      query?: string
+      embedding?: number[]
+      searchType?: "semantic" | "keyword" | "metadata" | "all"
+      threshold?: number
+      limit?: number
+    }
+  }
+  
+  response: {
+    add: {
+      status: "success"
+      linkId: string
+      metadata: LinkMetadata
+      folderPath: string
+      ttlHours: number
+    },
+    fetch: {
+      status: "success"
+      linkId: string
+      url: string
+      content: string
+      embeddings: number[]
+      cached: boolean
+      fetchedAt: string
+      expiresAt: string
+      freshness: "fresh" | "stale"
+      wordCount: number
+    },
+    search: {
+      status: "success"
+      links: SearchResult[]
+      count: number
+      searchType: string
+      query: string
+      threshold: number
+    }
   }
 }
 ```
@@ -90,61 +245,67 @@ interface UploadService {
 interface EmbeddingService {
   endpoints: {
     analyze_image: "/api/analyze_image"           // Comprehensive image analysis
+    analyze_document: "/api/analyze_document"     // Document RAG processing
     generate_embeddings: "/api/generate_embeddings"  // Text-to-vector conversion
     detect_components: "/api/detect_components"    // UI component detection
     generate_heatmap: "/api/generate_heatmap"     // Complexity heatmap generation
+    process_document_rag: "/api/process_document_rag"  // Full document RAG workflow
+    search_documents: "/api/search_documents"     // Document semantic search
     comprehensive_analysis: "/api/comprehensive_analysis"  // All-in-one analysis
     get_analysis: "/api/get_analysis/{analysisId}"  // Retrieve analysis results
   }
   
-  description: "AI-powered analysis with computer vision, embeddings, and complexity metrics"
+  description: "AI-powered analysis with computer vision, document RAG, embeddings, and complexity metrics"
   
   features: [
     "🎯 UI Component Detection (buttons, inputs, navigation, cards, tables, text)",
     "🔥 Complexity Heatmap Generation",
     "📊 Vector Embeddings with OpenAI",
     "🎨 Visual Component Analysis",
-    "📈 Comprehensive Analysis Reports",
+    "� Document RAG Processing",
+    "🔍 Document Text Extraction & Chunking",
+    "📝 AI-Generated Document Summaries",
+    "🏷️ Keyword Extraction & Tagging",
+    "�📈 Comprehensive Analysis Reports",
     "☁️ GCS Storage Integration",
     "🔍 Multi-modal Search Support"
   ]
   
-  aiCapabilities: {
-    componentDetection: [
-      "Button detection with confidence scoring",
-      "Input field recognition",
-      "Navigation structure analysis", 
-      "Card/container identification",
-      "Table structure detection",
-      "Text element localization"
+  ragCapabilities: {
+    documentProcessing: [
+      "PDF, Word, Markdown, TXT text extraction",
+      "Intelligent document chunking (configurable size)",
+      "Vector embeddings per chunk",
+      "Document structure preservation",
+      "Image extraction from documents"
     ],
-    complexityAnalysis: [
-      "Edge density calculation",
-      "Texture analysis",
-      "Color variance evaluation",
-      "Visual complexity scoring (0-100)",
-      "High complexity region identification"
+    semanticAnalysis: [
+      "AI-generated document summaries",
+      "Keyword and entity extraction",
+      "Topic modeling and categorization",
+      "Cross-document similarity analysis"
     ],
-    embeddings: [
-      "Text embeddings via OpenAI (text-embedding-3-small)",
-      "1536-dimensional vectors",
-      "Semantic similarity search ready",
-      "Token usage tracking"
+    searchAndRetrieval: [
+      "Semantic document search",
+      "Chunk-level similarity search",
+      "Question-answering over documents",
+      "Context-aware document recommendations"
     ]
   }
   
   storage: {
     uiImageStructure: "{projectId}/context/ui-images/{imageId}/",
+    documentStructure: "{projectId}/context/docs/{docId}/",
     assetStructure: "{projectId}/context/assets/{assetType}/",
-    analysisLocation: "Analysis results stored alongside original UI image",
+    analysisLocation: "Analysis results stored alongside original files",
     outputs: [
-      "Original image (image.png in image folder)",
-      "Component visualizations (analysis/component_visualization.png)", 
-      "Complexity heatmaps (analysis/complexity_heatmap.png)",
-      "Analysis metadata JSON (analysis/metadata.json)",
-      "Comprehensive reports (analysis/comprehensive_report.json)"
+      "Original files (image.png, document.{ext} in respective folders)",
+      "UI: Component visualizations, complexity heatmaps", 
+      "Docs: Text embeddings, chunks, summaries, keywords",
+      "Analysis metadata JSON",
+      "Comprehensive reports"
     ],
-    workflow: "UI Image Upload → Individual Folder → Analysis → Results in Same Folder"
+    workflow: "Upload → Individual Folder → AI Analysis → RAG Processing → Results in Same Folder"
   }
 }
 ```
@@ -241,8 +402,20 @@ interface ProjectInitService {
     "🔥 Firestore Collection Initialization", 
     "🔐 IAM Permissions Setup",
     "📁 Folder Structure Creation",
+    "🔗 Link Service Setup & Configuration",
     "⚙️ Project Settings Configuration"
   ]
+  
+  folderStructure: {
+    bucketSetup: "snapit-{projectId}/",
+    contextFolders: [
+      "context/ui-images/",
+      "context/docs/", 
+      "context/links/",
+      "context/assets/"
+    ],
+    linkServiceInit: "Pre-configure link TTL policies and cache structure"
+  }
 }
 ```
 ```
@@ -386,6 +559,15 @@ functions:
     timeout: "60s"
     trigger: "https"
     
+  link-service:
+    runtime: "python39"
+    memory: "1GB"                    # For content parsing & embeddings
+    timeout: "120s"                  # Extended for link fetching
+    trigger: "https"
+    env_vars:
+      OPENAI_API_KEY: "${OPENAI_API_KEY}"
+      REQUESTS_TIMEOUT: "30"
+    
   project-init-service:
     runtime: "python39"
     memory: "256MB"
@@ -435,16 +617,25 @@ ENABLE_CARBON_TRACKING=true
 
 | Service | Endpoint | Method | Description | AI Features |
 |---------|----------|--------|-------------|-------------|
-| 📤 **Upload** | `/api/upload` | POST | UI image & asset upload | Auto optimization & individual folders |
+| 📤 **Upload** | `/api/upload` | POST | UI image, document & asset upload | Auto optimization, RAG processing |
 | 📤 **Upload** | `/api/ui-images/{imageId}` | GET/DELETE | UI image management | Individual folder per image |
+| 📤 **Upload** | `/api/docs/{docId}` | GET/DELETE | Document management | RAG-enabled document folders |
 | 📤 **Upload** | `/api/assets/{assetType}/{assetId}` | GET/DELETE | Asset management by type | Type-based organization |
 | 🧠 **AI Analysis** | `/api/analyze_image` | POST | Comprehensive image analysis | 🎯 Component detection, 🔥 Heatmaps |
+| 🧠 **AI Analysis** | `/api/analyze_document` | POST | Document RAG processing | 📄 Text extraction, chunking, embeddings |
+| 🧠 **AI Analysis** | `/api/process_document_rag` | POST | Full RAG workflow | 📝 Summary, keywords, embeddings |
 | 🧠 **AI Analysis** | `/api/detect_components` | POST | UI component detection | 🎯 6 component types with confidence |
 | 🧠 **AI Analysis** | `/api/generate_heatmap` | POST | Complexity heatmap generation | 🔥 Visual complexity scoring |
 | 🧠 **AI Analysis** | `/api/generate_embeddings` | POST | Vector embeddings | 📊 OpenAI embeddings (1536D) |
+| 🧠 **AI Analysis** | `/api/search_documents` | POST | Document semantic search | 🔍 RAG-powered document search |
 | 🧠 **AI Analysis** | `/api/comprehensive_analysis` | POST | All-in-one analysis | 🎯🔥📊 Combined AI analysis |
 | 🧠 **AI Analysis** | `/api/get_analysis/{id}` | GET | Retrieve analysis results | Access to all AI outputs |
-| 💾 **Data** | `/api/data/{collection}` | GET/POST/PUT/DELETE | Advanced data management | 50+ Firestore collections |
+| � **Link Processing** | `/api/links/add` | POST | Add external link reference | Smart TTL caching configuration |
+| 🔗 **Link Processing** | `/api/fetch/{linkId}` | GET | Runtime content fetch | Intelligent cache management |
+| 🔗 **Link Processing** | `/api/refresh/{linkId}` | POST | Force refresh cached content | Cache invalidation & update |
+| 🔗 **Link Processing** | `/api/status/{linkId}` | GET | Check cache status | Freshness monitoring |
+| 🔗 **Link Processing** | `/api/links/search` | POST | Search cached link content | 🔍 Semantic & keyword search |
+| �💾 **Data** | `/api/data/{collection}` | GET/POST/PUT/DELETE | Advanced data management | 50+ Firestore collections |
 | 💾 **Data** | `/api/create_project` | POST | Project initialization | Auto-setup all collections |
 | 💾 **Data** | `/api/get_project/{id}` | GET | Complete project data | Categorized collection data |
 | 🔍 **Search** | `/api/search` | POST | Semantic search | 🔍 Vector similarity search |
@@ -453,6 +644,7 @@ ENABLE_CARBON_TRACKING=true
 | 🔍 **Search** | `/api/search_by_complexity` | POST | Complexity filtering | 📊 Score-based search |
 | 🔍 **Search** | `/api/search_similar_components/{id}` | GET | Similar component finder | 🎯 AI similarity matching |
 | 🔍 **Search** | `/api/search_ui_images` | POST | UI image & analysis search | 📁 Image folder filtering |
+| 🔍 **Search** | `/api/search_documents` | POST | Document RAG search | 📄 Semantic document search |
 | 🔍 **Search** | `/api/search_assets_by_type` | POST | Asset search by type | 📁 Type-based filtering |
 | 🏗️ **Project Init** | `/api/init` | POST | Project & bucket setup | 🪣 GCS & Firestore initialization |
 
@@ -581,11 +773,15 @@ interface AdvancedHealthCheck {
 ### 🔄 Integration Points
 
 1. **Upload → UI Image Folders**: UI images get individual folders (`{projectId}/context/ui-images/{imageId}/`)
-2. **Upload → Asset Storage**: Other assets organized by type (`{projectId}/context/assets/{assetType}/`)
-3. **UI Image → AI Analysis**: Analysis results stored in same folder as original image
-4. **Analysis → Data Service**: Results stored in Firestore with imageId and folder path references
-5. **Search Service**: Search across UI images, analysis results, and typed assets
-6. **Project Init**: Automated setup ensures proper folder structure for all workflows
+2. **Upload → Document RAG**: Documents get individual folders with RAG processing (`{projectId}/context/docs/{docId}/`)
+3. **Upload → Asset Storage**: Other assets organized by type (`{projectId}/context/assets/{assetType}/`)
+4. **Link → External RAG**: External links get individual folders with smart caching (`{projectId}/context/links/{linkId}/`)
+5. **UI Image → AI Analysis**: Analysis results stored in same folder as original image
+6. **Document → RAG Processing**: Text extraction, chunking, embeddings, and summaries stored with document
+7. **Link → Content Processing**: Cached content, embeddings, and metadata stored with TTL policies
+8. **Analysis → Data Service**: Results stored in Firestore with folder path references and embeddings
+9. **Search Service**: Semantic search across UI images, documents (RAG), links (RAG), analysis results, and typed assets
+10. **Project Init**: Automated setup ensures proper folder structure for all workflows
 
 ### 📁 Asset Management Workflow
 
@@ -593,24 +789,120 @@ interface AdvancedHealthCheck {
 flowchart TD
     A[File Upload] --> B{File Type?}
     B -->|UI Image| C[Create Individual Image Folder]
-    B -->|Other Asset| D[Store in Type-Based Asset Folder]
+    B -->|Document| D[Create Individual Document Folder]
+    B -->|Other Asset| E[Store in Type-Based Asset Folder]
     
-    C --> E[Store image.png in /ui-images/{imageId}/]
-    E --> F[Trigger AI Analysis]
-    F --> G[Component Detection]
-    F --> H[Complexity Analysis]
-    F --> I[Heatmap Generation]
-    G --> J[Store Results in /analysis/ subfolder]
-    H --> J
-    I --> J
+    C --> F[Store image.png in /ui-images/{imageId}/]
+    F --> G[Trigger AI Analysis]
+    G --> H[Component Detection]
+    G --> I[Complexity Analysis]
+    G --> J[Heatmap Generation]
+    H --> K[Store Results in /analysis/ subfolder]
+    I --> K
+    J --> K
     
-    D --> K[Store in /assets/{type}/{assetId}]
-    K --> L[Asset Available for Cross-Reference]
+    D --> L[Store document.{ext} in /docs/{docId}/]
+    L --> M[Trigger RAG Processing]
+    M --> N[Text Extraction]
+    M --> O[Document Chunking]
+    M --> P[Generate Embeddings]
+    M --> Q[Create Summary & Keywords]
+    N --> R[Store RAG Results in /analysis/ subfolder]
+    O --> R
+    P --> R
+    Q --> R
     
-    J --> M[Complete UI Image Analysis Package]
-    L --> N[Typed Asset Available]
-    M --> O[Searchable Image + Analysis Data]
-    N --> O
+    E --> S[Store in /assets/{type}/{assetId}]
+    S --> T[Asset Available for Cross-Reference]
+    
+    K --> U[Complete UI Image Analysis Package]
+    R --> V[Complete Document RAG Package]
+    T --> W[Typed Asset Available]
+    U --> X[Searchable Image + Analysis Data]
+    V --> Y[Searchable Document + RAG Data]
+    W --> X
+    Y --> Z[Multi-modal Semantic Search]
+    X --> Z
+```
+
+## 🛠️ Local Development & Testing
+
+### Quick Start Guide
+```bash
+# 1. Install dependencies for each service
+cd backend/functions/upload-service && pip install -r requirements.txt
+cd ../embedding-service && pip install -r requirements.txt
+cd ../data-service && pip install -r requirements.txt
+cd ../search-service && pip install -r requirements.txt
+cd ../link-service && pip install -r requirements.txt
+cd ../project-init-service && pip install -r requirements.txt
+
+# 2. Set environment variables
+export OPENAI_API_KEY="your-openai-api-key"
+export GOOGLE_APPLICATION_CREDENTIALS="path/to/service-account.json"
+export GCS_BUCKET="snapit-test-project"
+
+# 3. Run individual services locally
+# Upload Service (Port 8080)
+cd upload-service && functions-framework --target=upload_file --port=8080
+
+# AI Embedding Service (Port 8081)
+cd embedding-service && functions-framework --target=embedding_service --port=8081
+
+# Data Service (Port 8082) 
+cd data-service && functions-framework --target=data_service --port=8082
+
+# Search Service (Port 8083)
+cd search-service && functions-framework --target=semantic_search --port=8083
+
+# Link Service (Port 8084)
+cd link-service && functions-framework --target=link_processor --port=8084
+
+# Project Init Service (Port 8085)
+cd project-init-service && functions-framework --target=project_init_service --port=8085
+```
+
+### Test Endpoints Locally
+```bash
+# Test Upload Service
+curl -X POST http://localhost:8080/api/upload \
+  -F "files=@test-image.png" \
+  -F "projectId=test-project" \
+  -F "fileType=ui-image"
+
+# Test Link Service - Add Link
+curl -X POST http://localhost:8084/api/links/add \
+  -H "Content-Type: application/json" \
+  -d '{
+    "projectId": "test-project",
+    "url": "https://docs.python.org/3/tutorial/",
+    "contentType": "documentation",
+    "title": "Python Tutorial",
+    "tags": ["python", "tutorial", "programming"]
+  }'
+
+# Test Link Service - Fetch Content
+curl "http://localhost:8084/api/fetch/{linkId}?projectId=test-project&generateEmbeddings=true"
+
+# Test Link Service - Search
+curl -X POST http://localhost:8084/api/links/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "projectId": "test-project",
+    "query": "python tutorial",
+    "searchType": "keyword",
+    "limit": 5
+  }'
+
+# Test AI Analysis
+curl -X POST http://localhost:8081/api/analyze_image \
+  -H "Content-Type: application/json" \
+  -d '{"projectId": "test-project", "imageId": "img123"}'
+
+# Test Search Service
+curl -X POST http://localhost:8083/api/search \
+  -H "Content-Type: application/json" \
+  -d '{"projectId": "test-project", "query": "button component", "searchType": "semantic"}'
 ```
 
 ### 🚀 Next Steps & Enhancements

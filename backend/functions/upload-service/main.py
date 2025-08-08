@@ -20,8 +20,6 @@ db = firestore.Client()
 
 # Initialize Cloud Storage client
 storage_client = storage.Client()
-BUCKET_NAME = "snapit"  # Using snapit bucket as per documentation
-bucket = storage_client.bucket(BUCKET_NAME)
 
 # CORS headers
 headers = {
@@ -113,6 +111,10 @@ def add_file(request):
 
     # Determine storage path based on file type and snapit structure
     storage_path = get_file_storage_path(project_id, upload_file.content_type, gcs_filename)
+
+    # Get project-specific bucket
+    bucket_name = f"snapit-{project_id}"
+    bucket = storage_client.bucket(bucket_name)
 
     # Upload to GCS
     blob = bucket.blob(storage_path)

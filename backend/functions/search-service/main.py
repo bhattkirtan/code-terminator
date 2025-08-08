@@ -66,6 +66,8 @@ def semantic_search(request):
                 return search_by_complexity(request)
             elif path == '/search_ui_images':
                 return search_ui_images(request)
+            elif path == '/search_documents':
+                return search_documents(request)
             elif path == '/search_assets_by_type':
                 return search_assets_by_type(request)
         elif method == 'GET':
@@ -645,4 +647,131 @@ def search_assets_by_type(request):
         
     except Exception as e:
         logger.error(f"Error searching assets by type: {e}")
+        return jsonify({'error': str(e)}), 500, headers
+
+
+def search_documents(request):
+    """Search documents using RAG capabilities - semantic search over document chunks and summaries."""
+    data = request.json
+    if not data:
+        return jsonify({"error": "No data provided"}), 400, headers
+
+    try:
+        project_id = data.get('projectId')
+        query = data.get('query', '')
+        query_embedding = data.get('embedding')  # Pre-computed embedding for the query
+        search_type = data.get('searchType', 'semantic')  # 'semantic', 'keyword', 'summary'
+        filters = data.get('filters', {})
+        threshold = data.get('threshold', 0.7)
+        limit = data.get('limit', 10)
+        
+        if not project_id:
+            return jsonify({'error': 'Missing projectId'}), 400, headers
+        
+        results = []
+        
+        # Search in document embeddings collection for RAG
+        if search_type in ['semantic', 'all'] and query_embedding:
+            embeddings_ref = db.collection('projects').document(project_id).collection('embeddings')
+            embeddings_docs = embeddings_ref.where('sourceType', '==', 'document').stream()
+            
+            for doc in embeddings_docs:
+                embedding_data = doc.to_dict()
+                stored_embedding = embedding_data.get('vector', [])
+                
+                if stored_embedding:
+                    similarity = cosine_similarity(query_embedding, stored_embedding)
+                    
+                    if similarity >= threshold:
+                        results.append({
+                            'id': doc.id,
+                            'docId': embedding_data.get('docId'),
+                            'documentPath': f"context/docs/{embedding_data.get('docId')}/document.{embedding_data.get('fileExtension', 'pdf')}",
+                            'analysisPath': f"context/docs/{embedding_data.get('docId')}/analysis/",
+                            'content': embedding_data.get('content', ''),
+                            'chunkIndex': embedding_data.get('chunkIndex', 0),
+                            'similarity': float(similarity),
+                            'type': 'document_chunk',
+                            'metadata': embedding_data.get('metadata', {}),
+                            'createdAt': embedding_data.get('createdAt')
+                        })
+        
+        # Search in document analysis collection for summaries and keywords
+        doc_analysis_ref = db.collection('projects').document(project_id).collection('documentation')
+        doc_query = doc_analysis_ref
+        
+        # Apply filters
+        if filters.get('docId'):
+            doc_query = doc_query.where('docId', '==', filters['docId'])
+        
+        if filters.get('documentType'):
+            doc_query = doc_query.where('documentType', '==', filters['documentType'])
+        
+        # Order by creation date (newest first)
+        doc_query = doc_query.order_by('createdAt', direction=firestore.Query.DESCENDING)
+        
+        docs = doc_query.limit(limit * 2).stream()  # Get more docs for filtering
+        
+        for doc in docs:
+            doc_data = doc.to_dict()
+            
+            # Keyword search in summary and content
+            if search_type in ['keyword', 'summary', 'all'] and query:
+                summary = doc_data.get('summary', '').lower()
+                keywords = doc_data.get('keywords', [])
+                content = doc_data.get('extractedText', '').lower()
+                query_lower = query.lower()
+                
+                # Check if query matches summary, keywords, or content
+                summary_match = query_lower in summary
+                keyword_match = any(query_lower in keyword.lower() for keyword in keywords)
+                content_match = query_lower in content[:1000]  # First 1000 chars for performance
+                
+                if summary_match or keyword_match or content_match:
+                    relevance_score = 0.0
+                    if summary_match:
+                        relevance_score += 0.5
+                    if keyword_match:
+                        relevance_score += 0.3
+                    if content_match:
+                        relevance_score += 0.2
+                    
+                    results.append({
+                        'id': doc.id,
+                        'docId': doc_data.get('docId'),
+                        'documentPath': f"context/docs/{doc_data.get('docId')}/document.{doc_data.get('fileExtension', 'pdf')}",
+                        'analysisPath': f"context/docs/{doc_data.get('docId')}/analysis/",
+                        'title': doc_data.get('title', f"Document {doc_data.get('docId')}"),
+                        'summary': doc_data.get('summary', ''),
+                        'keywords': doc_data.get('keywords', []),
+                        'extractedText': doc_data.get('extractedText', '')[:500],  # First 500 chars
+                        'relevanceScore': relevance_score,
+                        'type': 'document_summary',
+                        'documentType': doc_data.get('documentType', 'unknown'),
+                        'pageCount': doc_data.get('pageCount', 0),
+                        'wordCount': doc_data.get('wordCount', 0),
+                        'createdAt': doc_data.get('createdAt')
+                    })
+        
+        # Sort results by similarity/relevance score (highest first)
+        if search_type == 'semantic':
+            results.sort(key=lambda x: x.get('similarity', 0), reverse=True)
+        else:
+            results.sort(key=lambda x: x.get('relevanceScore', 0), reverse=True)
+        
+        # Limit results
+        results = results[:limit]
+        
+        return jsonify({
+            'status': 'success',
+            'documents': results,
+            'count': len(results),
+            'searchType': search_type,
+            'query': query,
+            'threshold': threshold,
+            'structure': 'RAG-enabled document search with individual folders'
+        }), 200, headers
+        
+    except Exception as e:
+        logger.error(f"Error searching documents: {e}")
         return jsonify({'error': str(e)}), 500, headers
