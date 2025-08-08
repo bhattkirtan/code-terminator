@@ -11,7 +11,7 @@ def quick_test():
     print("-" * 35)
     
     # Check for images
-    test_dir = Path("../../data/test_images")
+    test_dir = Path("../data/test_images")
     if not test_dir.exists():
         test_dir.mkdir()
         print("📁 Created test_images/ folder")
@@ -26,7 +26,9 @@ def quick_test():
     
     # Try to import after checking basic requirements
     try:
-        from src.agents.skadoosh_agents import AccuracyValidatorAgent, AgentContext
+        import sys
+        sys.path.append('..')  # Add parent directory to path
+        from skadoosh_agents import AccuracyValidatorAgent, AgentContext
     except ImportError as e:
         print(f"❌ Import failed: {e}")
         print("   Make sure skadoosh_agents.py is in the same directory")

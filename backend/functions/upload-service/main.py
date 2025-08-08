@@ -16,7 +16,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 # Initialize Firestore client
-db = firestore.Client()
+db = firestore.Client(database="snapit")
 
 # Initialize Cloud Storage client
 storage_client = storage.Client()

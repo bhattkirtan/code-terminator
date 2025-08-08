@@ -1,0 +1,15 @@
+{
+  "test_cases": [
+    {
+      "name": "Sample Test Case",
+      "image": "place_your_image_here.png",
+      "url": "https://example.com",
+      "description": "Sample test case - replace with your actual test data"
+    }
+  ],
+  "thresholds": {
+    "accuracy_threshold": 0.85,
+    "layout_threshold": 0.7,
+    "color_threshold": 0.8
+  }
+}

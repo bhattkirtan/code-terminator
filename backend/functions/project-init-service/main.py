@@ -15,7 +15,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 # Initialize clients
-db = firestore.Client()
+db = firestore.Client(database="snapit")
 storage_client = storage.Client()
 
 # CORS headers
