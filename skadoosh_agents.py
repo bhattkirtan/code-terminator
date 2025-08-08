@@ -712,39 +712,140 @@ CMD ["nginx", "-g", "daemon off;"]
         return output
 
 class CarbonAgent(BaseAgent):
-    """Tracks estimated CO₂ per model/token run"""
+    """Tracks estimated CO₂ per model/token run with LLM-aware calculations"""
     
     def __init__(self):
-        super().__init__("CarbonAgent", "Local Python calculator")
+        super().__init__("CarbonAgent", "LLM-Enhanced Carbon Calculator")
+        # Import the LLM carbon calculator
+        try:
+            from llm_carbon_calculator import LLMCarbonCalculator
+            self.carbon_calculator = LLMCarbonCalculator()
+        except ImportError:
+            print("⚠️  LLM Carbon Calculator not found, using basic calculations")
+            self.carbon_calculator = None
+        
+        # Traditional model emissions for fallback
+        self.model_emissions = {
+            "phi-3-mini": 0.001,  # kg CO2 per run
+            "phi-3-vision": 0.005,
+            "gemma-2b": 0.002,
+            "orca-2-7b": 0.01,
+            "gpt-4o": 0.1,  # Higher for cloud models
+            "gpt-4": 0.08,
+            "gpt-3.5-turbo": 0.02
+        }
+    
+    def log_llm_usage(self, model: str, input_tokens: int, output_tokens: int, 
+                     processing_time: float, operation_type: str = "text") -> str:
+        """Log LLM usage for carbon tracking"""
+        if self.carbon_calculator:
+            return self.carbon_calculator.log_llm_usage(
+                model, input_tokens, output_tokens, processing_time, operation_type
+            )
+        return f"basic_log_{int(time.time())}"
+    
+    def calculate_llm_emissions(self, model: str, input_tokens: int, output_tokens: int, 
+                               operation_type: str = "text", region: str = "global") -> Dict[str, Any]:
+        """Calculate emissions for a specific LLM request"""
+        if self.carbon_calculator:
+            return self.carbon_calculator.calculate_request_emissions(
+                model, input_tokens, output_tokens, operation_type, region
+            )
+        
+        # Fallback calculation
+        total_tokens = input_tokens + output_tokens
+        emissions_kg = self.model_emissions.get(model, 0.01) * (total_tokens / 1000)
+        
+        return {
+            "model": model,
+            "input_tokens": input_tokens,
+            "output_tokens": output_tokens,
+            "total_gco2": emissions_kg * 1000,
+            "total_kg_co2": emissions_kg,
+            "calculation_method": "fallback"
+        }
+    
+    def get_session_carbon_report(self, region: str = "global") -> Dict[str, Any]:
+        """Get comprehensive carbon report for the current session"""
+        if self.carbon_calculator:
+            session_data = self.carbon_calculator.calculate_session_emissions(region)
+            recommendations = self.carbon_calculator.get_optimization_recommendations()
+            offset_suggestions = self.carbon_calculator.get_carbon_offset_suggestions(
+                session_data["total_kg_co2"]
+            )
+            
+            return {
+                **session_data,
+                "optimization_recommendations": recommendations,
+                "offset_suggestions": offset_suggestions,
+                "calculation_method": "llm_enhanced"
+            }
+        
+        return {
+            "total_requests": 0,
+            "total_gco2": 0,
+            "total_kg_co2": 0,
+            "calculation_method": "basic",
+            "message": "LLM Carbon Calculator not available"
+        }
     
     def execute(self, context: AgentContext, input_data: Dict[str, Any]) -> Dict[str, Any]:
         self.start_time = datetime.now()
         
+        # Enhanced carbon calculation with LLM awareness
         total_emissions = 0
-        model_emissions = {
-            "phi-3-mini": 0.001,  # kg CO2 per run
-            "phi-3-vision": 0.005,
-            "gemma-2b": 0.002,
-            "orca-2-7b": 0.01
-        }
+        llm_emissions = 0
+        traditional_emissions = 0
         
+        # Process execution trace for emissions
         for entry in context.execution_trace:
             model = entry.get("model", "unknown")
-            emissions = model_emissions.get(model, 0.001)
-            total_emissions += emissions
+            tokens = entry.get("tokens", {})
+            operation_type = entry.get("operation_type", "text")
+            
+            if isinstance(tokens, dict) and "input" in tokens and "output" in tokens:
+                # LLM-based calculation
+                if self.carbon_calculator:
+                    emission_data = self.calculate_llm_emissions(
+                        model, tokens["input"], tokens["output"], operation_type
+                    )
+                    llm_emissions += emission_data["total_kg_co2"]
+                else:
+                    # Fallback calculation
+                    total_tokens = tokens["input"] + tokens["output"]
+                    emissions = self.model_emissions.get(model, 0.01) * (total_tokens / 1000)
+                    traditional_emissions += emissions
+            else:
+                # Traditional model-per-run calculation
+                emissions = self.model_emissions.get(model, 0.001)
+                traditional_emissions += emissions
+        
+        total_emissions = llm_emissions + traditional_emissions
+        
+        # Get comprehensive session report if available
+        session_report = self.get_session_carbon_report()
         
         self.end_time = datetime.now()
         
         output = {
-            "total_emissions_kg": round(total_emissions, 4),
-            "emissions_by_model": model_emissions,
-            "optimization_recommendations": [
+            "total_emissions_kg": round(total_emissions, 6),
+            "llm_emissions_kg": round(llm_emissions, 6),
+            "traditional_emissions_kg": round(traditional_emissions, 6),
+            "session_report": session_report,
+            "emissions_by_model": self.model_emissions,
+            "calculation_enhanced": self.carbon_calculator is not None,
+            "optimization_recommendations": session_report.get("optimization_recommendations", [
                 "Use smaller models for simple tasks",
-                "Cache frequently used results",
-                "Batch similar operations"
-            ],
-            "green_score": 85,
-            "offset_suggestions": "Plant 1 tree to offset carbon footprint"
+                "Cache frequently used results", 
+                "Batch similar operations",
+                "Consider local models for development"
+            ]),
+            "green_score": session_report.get("carbon_efficiency_score", 85),
+            "offset_suggestions": session_report.get("offset_suggestions", {
+                "trees_to_plant": max(1, round(total_emissions * 50)),
+                "cost_estimate_usd": round(total_emissions * 0.02, 4)
+            }),
+            "carbon_awareness_level": "llm_enhanced" if self.carbon_calculator else "basic"
         }
         
         self.log_execution(context, input_data, output)
